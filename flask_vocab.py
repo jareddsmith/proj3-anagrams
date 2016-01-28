@@ -86,7 +86,7 @@ def success():
 #   a JSON request handler
 #######################
 
-@app.route("/_check", methods = ["POST"])
+@app.route("/_check")
 def check():
   """
   User has submitted the form with a word ('attempt')
@@ -107,26 +107,29 @@ def check():
   in_jumble = LetterBag(jumble).contains(text)
   matched = WORDS.has(text)
 
+  
   ## Respond appropriately 
   if matched and in_jumble and not (text in matches):
     ## Cool, they found a new word
     matches.append(text)
     flask.session["matches"] = matches
+	rslt = {"matched": matched}
+	
   elif text in matches:
-    flask.flash("You already found {}".format(text))
+    rslt = {"found": True}
   elif not matched:
-    flask.flash("{} isn't in the list of words".format(text))
+    rslt = {"invalid_word": True}
   elif not in_jumble:
-    flask.flash('"{}" can\'t be made from the letters {}'.format(text,jumble))
+    rslt = {"invalid_letters": True} 
   else:
     app.logger.debug("This case shouldn't happen!")
     assert False  # Raises AssertionError
-
-  ## Choose page:  Solved enough, or keep going? 
+  
   if len(matches) >= flask.session["target_count"]:
-    return flask.redirect(url_for("success"))
-  else:
-    return flask.redirect(url_for("keep_going"))
+	rslt = {"finished": True}
+	
+  return jsonify(result = rslt)
+
 
 ###############
 # AJAX request handlers 

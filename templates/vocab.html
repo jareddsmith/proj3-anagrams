@@ -90,26 +90,69 @@
 
 <br />
 
-{% if session.matches|length is not equalto 0  %}
-<h2>You found </h2>
-<p id="results">
-  {% for match in session.matches %}
-  {{ match }} 
-  {% endfor %}
-</p>
-{% endif %}
+<script>
+var correct_count = 0;
+var target_count = {{ session.target_count }};
+var jumble = "{{ session.jumble }}";
+var correct_list = [ ] ;
 
+//Disables enter key as a form of submission
+$("#entry").submit( function(event) {
+   // console.log("Suppressing form submission");
+   event.preventDefault();
+  });
 
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <!-- Mismatch, already found, etc. "flashed" from Python -->
-    {% for message in messages %}
-      <p class="message">{{ message }}</p>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
+// On each keystroke, ask the server whether the current 
+// field content is a vocabulary word that can be formed
+// from the jumble.  (We use 'keyup' because the form value
+// is updated before that event is generated.  keypress doesn't work.)
+//
+$("#attempt").keyup(function() {
+   var txt = $("#attempt").val();
+   // We can only find a given word once
+   if (correct_list.indexOf(txt) >= 0) {
+       return;
+   }
+   // At least we haven't seen this ... is it in the wordlist
+   // and buildable with the jumble letters? 
+   $.getJSON( "/_check", { text: txt, jumble: jumble }, 
+              function(data) {
+                rsval = data.result.matched; //Match found boolean
+				foval = data.result.found; //Match already found boolean
+				inval_w = data.result.invalid_word; //Invalid word boolean
+				inval_l = data.result.invalid_letters; //Invalid letters boolean
+				fnval = data.result.finished; //Finished boolean
+				
+				//Command line log
+                console.log("rsval: " + rsval)
+				console.log("foval: " + fnval)
+				console.log("inval_w: " + inval_w)
+				console.log("inval_l: " + inval_l)
+				console.log("fnval: " + fnval)
+				
+				//Display success page when the finished condition is true
+                if (fnval) {
+					window.location = "/success"
+					}
+				else if (rsval){
+					$("#response").html(txt);
+					$("#attempt").val("");
+				}
+				else if(foval){
+					$("#errors").html("You already found " + txt);
+				}
+				else if(inval_w){
+					$("#errors").html(txt + " isn't in the list of words");
+				}
+				else if(inval_l){
+					$("#errors").html("'" + txt + "' can't be made from the letters, " + jumble);
+				}
+               }
+             }
+           );
+   });
 
-
+</script>
 
  </div> <!-- container -->
 </body> </html>

@@ -16,20 +16,14 @@ have different anagrams.
 
 ## Authors 
 
-Initial version by M Young; to be revised by CIS 399se students. 
+Initial version by M Young; revised by Jared Smith. 
 
 ## Status
 
-This is the 'skeleton' version for a CIS 322 project.  It uses conventional 
-interaction through a form, interacting only when the user submits the form. 
-Assignment is to replace the interaction with AJAX interaction on each 
-keystroke. 
-
-## Minijax? 
-
-flask_minijax.py and templates/minijax.html are a tiny example of using JQuery 
-with flask for an Ajax application.  (To be deleted in revised version of the project. 
-
+Fully working running on dev machine and ix server.
+http://ix.cs.uoregon.edu/~yourname/cis322/htbin/proj3-anagram
+http://ix.cs.uoregon.edu:(5001-8000)
+Port is chosen at random each time the program is executed
 
 ## To run automated tests 
 * `nosetests`

@@ -3,7 +3,7 @@ Simple Flask web site
 """
 
 import flask
-# from flask import render_template
+from flask import render_template
 from flask import request  # Data from a submitted form
 from flask import url_for
 from flask import jsonify # For AJAX transactions
@@ -80,10 +80,7 @@ def success():
   return flask.render_template('success.html')
 
 #######################
-# Form handler.  
-# CIS 322 (399se) note:
-#   You'll need to change this to a
-#   a JSON request handler
+# JSON request handler
 #######################
 
 @app.route("/_check")
@@ -99,13 +96,14 @@ def check():
   app.logger.debug("Entering check")
 
   ## The data we need, from form and from cookie
-  text = request.form["attempt"]
+  text = request.args.get("text", type=str)
   jumble = flask.session["jumble"]
   matches = flask.session.get("matches", []) # Default to empty list
 
   ## Is it good? 
   in_jumble = LetterBag(jumble).contains(text)
   matched = WORDS.has(text)
+  rslt = {"matched": False, "found": False, "invalid_word": False, "invalid_letters": False, "finished": False}
 
   
   ## Respond appropriately 
@@ -113,20 +111,20 @@ def check():
     ## Cool, they found a new word
     matches.append(text)
     flask.session["matches"] = matches
-	rslt = {"matched": matched}
+    rslt = {"matched": True}
 	
   elif text in matches:
     rslt = {"found": True}
   elif not matched:
     rslt = {"invalid_word": True}
   elif not in_jumble:
-    rslt = {"invalid_letters": True} 
+    rslt = {"invalid_letters": True}
   else:
     app.logger.debug("This case shouldn't happen!")
     assert False  # Raises AssertionError
   
   if len(matches) >= flask.session["target_count"]:
-	rslt = {"finished": True}
+    rslt = {"finished": True}
 	
   return jsonify(result = rslt)
 

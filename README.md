@@ -21,7 +21,7 @@ Initial version by M Young; revised by Jared Smith.
 ## Status
 
 Fully working running on dev machine and ix server.
-http://ix.cs.uoregon.edu/~yourname/cis322/htbin/proj3-anagram
+http://ix.cs.uoregon.edu/~jsmith/cis322/htbin/proj3-anagram
 http://ix.cs.uoregon.edu:(5001-8000)
 Port is chosen at random each time the program is executed
 
